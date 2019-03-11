@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import './App.css';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import Display from './components/display';
-import Button from './components/button';
 import ButtonContain from './components/button-container';
 
 class App extends Component {
@@ -10,7 +9,10 @@ class App extends Component {
     super(props);
     this.state = {
       displayValue: '0',
-      calculationValue: 0
+      currentTotal: 0,
+      inputValue: '',
+      mathSequence: '',
+      currentOperator: ''
     };
 
     // button Value button on the calculator 1 2 3 * + / , etc
@@ -20,7 +22,7 @@ class App extends Component {
         type: 'operator'
       },
       {
-        value: 'sqrt',
+        value: '√',
         type: 'operator'
       },
       {
@@ -29,35 +31,23 @@ class App extends Component {
       },
       {
         value: '1/x',
-        type: 'value modifier'
-      },
-      {
-        value: 'CE',
         type: 'modifier'
       },
       {
-        value: '1',
-        type: 'number'
+        value: 'CE',
+        type: 'reset'
       },
       {
-        value: '2',
-        type: 'number'
+        value: 'C',
+        type: 'reset'
       },
       {
-        value: '3',
-        type: 'number'
+        value: 'Del',
+        type: 'modifier'
       },
       {
-        value: '4',
-        type: 'number'
-      },
-      {
-        value: '5',
-        type: 'number'
-      },
-      {
-        value: '6',
-        type: 'number'
+        value: '÷',
+        type: 'operator'
       },
       {
         value: '7',
@@ -72,12 +62,56 @@ class App extends Component {
         type: 'number'
       },
       {
-        value: '0',
+        value: '×',
+        type: 'operator'
+      },
+      {
+        value: '4',
+        type: 'number'
+      },
+      {
+        value: '5',
+        type: 'number'
+      },
+      {
+        value: '6',
+        type: 'number'
+      },
+      {
+        value: '-',
+        type: 'operator'
+      },
+      {
+        value: '1',
+        type: 'number'
+      },
+      {
+        value: '2',
+        type: 'number'
+      },
+      {
+        value: '3',
         type: 'number'
       },
       {
         value: '+',
         type: 'operator'
+      },
+      {
+        value: '±',
+        type: 'modifier'
+      },
+      {
+        value: '0',
+        type: 'number'
+      },
+      {
+        value: '.',
+        type: 'decimal-point'
+      },
+      {
+        value: '=',
+        type: 'result'
       }
     ];
 
@@ -85,25 +119,116 @@ class App extends Component {
   }
 
   handleClick(e, button) {
-    let displayValueNumb, displayValueString;
+    let currentInput = this.state.inputValue;
     const value = button.value;
+    
+    switch(button.type) {
+      case 'number':
+          currentInput = currentInput + value;
+          // check if there is a leading zero
+          if (currentInput.charAt(0) === '0' && currentInput.length > 1) {
+            currentInput = currentInput.slice(1);
 
-    if (button.type === 'number' ) {
-      displayValueString = this.state.displayValue + value;
-      // check if there is a leading zero
-      if (displayValueString.charAt(0) === '0') {
-        displayValueString = displayValueString.slice(1);
-        this.setState({displayValue: displayValueString});
-      } else {
-        this.setState({displayValue: displayValueString});
-      }
+            // when we inputing the value, the current input gonna be displayValue,
+            // sometime it won't be the same, like when you hit the operator. The
+            // display value stay the same but the inputValue is reset to empty string.
+            this.setState({displayValue: currentInput, inputValue: currentInput},);
+            
+          } else {
+            this.setState({displayValue: currentInput, inputValue: currentInput});
+          }
+        break;
+      case 'operator': 
+          if (this.state.inputValue) {
+            this.operatorHandling(value, currentInput);
+          }
+          
+        break;
+    }
+  }
+
+  componentDidMount() {
+    //this.setState({displayValue: this.state.displayValue, inputValue: this.state.inputValue});
+    
+  }
+
+  operatorHandling(value, oldInput) {
+     // if this is first calculation
+     if (!this.state.currentOperator) {
+      this.setState({inputValue: '', currentTotal: this.convertNumb(oldInput) , currentOperator: value});
+    }
+    switch (value) {
+      case '+':
+        //there is previous calculation needed to be done
+          //calculate new currentTotal
+          this.calculateTotal();
+          this.setState({currentOperator: value});
+          //reset input value
+          this.setState({inputValue: ''});
+        
+        break;
+      case '-':
+        this.calculateTotal();
+        this.setState({currentOperator: value});
+        //reset input value
+        this.setState({inputValue: ''});
+        break;
+      case '×':
+        this.calculateTotal();
+        this.setState({currentOperator: value});
+        
+        // reset input value
+        this.setState({inputValue: ''});
+        break;
+      case '÷':
+        this.calculateTotal();
+        this.setState({currentOperator: value});
+        
+        // reset input value
+        this.setState({inputValue: ''});
+        break;
+    }
+  }
+
+  //sometime number is a integer, sometime it is float, we have to check to use parseFloat or parseInt
+  convertNumb(numb) {
+    if (parseFloat(numb) == undefined) {
+      return parseInt(numb);
+    } else {
+      return parseFloat(numb);
     }
   }
   
+  calculateTotal() {
+    const {currentTotal, inputValue, currentOperator } = this.state;
+
+    let newCurTotal;
+    switch (currentOperator) {
+      case '+':
+        newCurTotal = this.convertNumb(currentTotal) + this.convertNumb(inputValue);
+        this.setState({currentTotal: newCurTotal, displayValue: newCurTotal.toString()});
+        break;
+      case '-':
+        newCurTotal = this.convertNumb(currentTotal) - this.convertNumb(inputValue);
+        this.setState({currentTotal: newCurTotal, displayValue: newCurTotal.toString()});
+        break;
+
+      case '×':
+        newCurTotal = this.convertNumb(currentTotal) * this.convertNumb(inputValue);
+        this.setState({currentTotal: newCurTotal, displayValue: newCurTotal.toString()});
+        break;
+      case '÷':
+        newCurTotal = this.convertNumb(currentTotal) / this.convertNumb(inputValue);
+        this.setState({currentTotal: newCurTotal, displayValue: newCurTotal.toString()});
+        break;
+    }
+  } 
+
   render() {
     return (
       <div className="App">
         <Display className="Calculator-screen" value={this.state.displayValue}/>
+        <div>math sequence</div>
         <div className="input-pad">
             <ButtonContain buttons={this.buttons} clickEvent={this.handleClick}/>
         </div>
