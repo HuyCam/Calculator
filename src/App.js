@@ -139,17 +139,15 @@ class App extends Component {
           }
         break;
       case 'operator': 
+          // if user has input something in the calculator
           if (this.state.inputValue) {
             this.operatorHandling(value, currentInput);
+          } else {
+            this.setState({ currentOperator: value})
           }
           
         break;
     }
-  }
-
-  componentDidMount() {
-    //this.setState({displayValue: this.state.displayValue, inputValue: this.state.inputValue});
-    
   }
 
   operatorHandling(value, oldInput) {
@@ -157,37 +155,15 @@ class App extends Component {
      if (!this.state.currentOperator) {
       this.setState({inputValue: '', currentTotal: this.convertNumb(oldInput) , currentOperator: value});
     }
-    switch (value) {
-      case '+':
-        //there is previous calculation needed to be done
-          //calculate new currentTotal
-          this.calculateTotal();
-          this.setState({currentOperator: value});
-          //reset input value
-          this.setState({inputValue: ''});
+
+    
+    this.calculateTotal();
+    this.setState({currentOperator: value});
         
-        break;
-      case '-':
-        this.calculateTotal();
-        this.setState({currentOperator: value});
-        //reset input value
-        this.setState({inputValue: ''});
-        break;
-      case '×':
-        this.calculateTotal();
-        this.setState({currentOperator: value});
-        
-        // reset input value
-        this.setState({inputValue: ''});
-        break;
-      case '÷':
-        this.calculateTotal();
-        this.setState({currentOperator: value});
-        
-        // reset input value
-        this.setState({inputValue: ''});
-        break;
-    }
+    // reset input value
+    this.setState({inputValue: ''});
+
+    
   }
 
   //sometime number is a integer, sometime it is float, we have to check to use parseFloat or parseInt
@@ -199,6 +175,7 @@ class App extends Component {
     }
   }
   
+  // calculate total base on the input then update the currentTotal
   calculateTotal() {
     const {currentTotal, inputValue, currentOperator } = this.state;
 
@@ -236,9 +213,5 @@ class App extends Component {
     );
   }
 }
-
-
-//            <Button className="Numb-pad" button={this.buttons['1']} clickEvent={this.handleClick} />
-
 
 export default App;
