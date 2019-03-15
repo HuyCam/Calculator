@@ -10,7 +10,7 @@ class App extends Component {
     this.state = {
       displayValue: '0',
       currentTotal: 0,
-      inputValue: '',
+      inputValue: '0',
       mathSequence: '',
       currentOperator: ''
     };
@@ -19,15 +19,15 @@ class App extends Component {
     this.buttons = [
       {
         value: '%',
-        type: 'operator'
+        type: 'modifier'
       },
       {
         value: '√',
-        type: 'operator'
+        type: 'modifier'
       },
       {
-        value: 'sqr',
-        type: 'operator'
+        value: 'x^2',
+        type: 'modifier'
       },
       {
         value: '1/x',
@@ -107,7 +107,7 @@ class App extends Component {
       },
       {
         value: '.',
-        type: 'decimal-point'
+        type: 'modifier'
       },
       {
         value: '=',
@@ -120,11 +120,14 @@ class App extends Component {
 
   handleClick(e, button) {
     let currentInput = this.state.inputValue;
+
+    // button value here is either a number or operator
     const value = button.value;
     
     switch(button.type) {
       case 'number':
           currentInput = currentInput + value;
+          
           // check if there is a leading zero
           if (currentInput.charAt(0) === '0' && currentInput.length > 1) {
             currentInput = currentInput.slice(1);
@@ -132,38 +135,114 @@ class App extends Component {
             // when we inputing the value, the current input gonna be displayValue,
             // sometime it won't be the same, like when you hit the operator. The
             // display value stay the same but the inputValue is reset to empty string.
-            this.setState({displayValue: currentInput, inputValue: currentInput},);
+            this.setState({displayValue: this.inputThousandSeperator(currentInput), inputValue: currentInput},);
             
           } else {
-            this.setState({displayValue: currentInput, inputValue: currentInput});
+            this.setState({displayValue: this.inputThousandSeperator(currentInput), inputValue: currentInput});
           }
         break;
       case 'operator': 
-          // if user has input something in the calculator
-          if (this.state.inputValue) {
+          // if user has hit operator button. Check if there is current input number or current calculation in process.
+          // because if user hit equal sign, their will be no currentOperator in process.
+          if (this.state.inputValue ) {
             this.operatorHandling(value, currentInput);
           } else {
             this.setState({ currentOperator: value})
           }
-          
         break;
+      case 'modifier':
+        this.modifyValue(value);
+        break;
+      case 'result':
+          // if user hit equal sign, calculate total
+          this.calculateTotal();
+          this.setState({
+            currentOperator: '',
+            inputValue: ''
+          });
+          
+          break;
+      case 'reset':
+          if (value === 'CE') {
+            this.setState({ displayValue: '0', inputValue: ''});
+          } else {
+            this.setState({
+              displayValue: '0',
+              currentTotal: 0,
+              inputValue: '',
+              mathSequence: '',
+              currentOperator: ''
+            });
+          }
+          break;
+        
     }
+  }
+
+  // this take a number input then return a string with thousand seperator: like 1,000,000
+  // this should work with any setState method change the displayValue
+  // NOTE: work with only integer and decimal
+  inputThousandSeperator(numb) {
+    const arrNumb = numb.toString().split('.'); // this is array of string type number
+    if (arrNumb.length === 1) {
+      return numb.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+    } else {
+      const integerPart = arrNumb[0].replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
+      const decimalPart = arrNumb[1];
+      return integerPart + '.' + decimalPart;
+    }
+    
   }
 
   operatorHandling(value, oldInput) {
      // if this is first calculation
      if (!this.state.currentOperator) {
-      this.setState({inputValue: '', currentTotal: this.convertNumb(oldInput) , currentOperator: value});
+        this.setState({inputValue: '0', currentTotal: this.convertNumb(oldInput) , currentOperator: value});
+      } else {
+        this.calculateTotal();
+        this.setState({currentOperator: value});
+          
+        // reset input value
+        this.setState({inputValue: '0'});
+      }   
+  }
+
+  modifyValue(value) {
+    const input = this.convertNumb(this.state.inputValue);
+    // for the special operator, we change input instantly
+    let newInput;
+    switch(value) {
+      case '√':
+        newInput = Math.sqrt(input).toString();
+        this.updateInputnDisplay(newInput);
+        break;
+      case 'x^2':
+        newInput = (input * input).toString();
+        this.updateInputnDisplay(newInput);
+        break; 
+      case '%':
+        newInput = (input/100).toString();
+        this.updateInputnDisplay(newInput);
+        break;
+      case '1/x':
+        newInput = (1/input).toString();
+        this.updateInputnDisplay(newInput);
+        break;
+      case '±':
+        newInput = (-input).toString();
+        this.updateInputnDisplay(newInput);
+        break;
+      case '.':
+        newInput = input.toString() + '.';
+        console.log('newInput', newInput);
+        this.updateInputnDisplay(newInput);
+        break;
     }
+  }
 
-    
-    this.calculateTotal();
-    this.setState({currentOperator: value});
-        
-    // reset input value
-    this.setState({inputValue: ''});
-
-    
+  //update inputValue and displayValue, this function is usually used in modifyValue
+  updateInputnDisplay(newInput) {
+    this.setState({inputValue: newInput, displayValue: this.inputThousandSeperator(newInput)});
   }
 
   //sometime number is a integer, sometime it is float, we have to check to use parseFloat or parseInt
@@ -183,23 +262,28 @@ class App extends Component {
     switch (currentOperator) {
       case '+':
         newCurTotal = this.convertNumb(currentTotal) + this.convertNumb(inputValue);
-        this.setState({currentTotal: newCurTotal, displayValue: newCurTotal.toString()});
+        this.updateCalculation(newCurTotal);
         break;
       case '-':
         newCurTotal = this.convertNumb(currentTotal) - this.convertNumb(inputValue);
-        this.setState({currentTotal: newCurTotal, displayValue: newCurTotal.toString()});
+        this.updateCalculation(newCurTotal);
         break;
 
       case '×':
         newCurTotal = this.convertNumb(currentTotal) * this.convertNumb(inputValue);
-        this.setState({currentTotal: newCurTotal, displayValue: newCurTotal.toString()});
+        this.updateCalculation(newCurTotal);
         break;
       case '÷':
         newCurTotal = this.convertNumb(currentTotal) / this.convertNumb(inputValue);
-        this.setState({currentTotal: newCurTotal, displayValue: newCurTotal.toString()});
+        this.updateCalculation(newCurTotal);
         break;
     }
   } 
+
+  updateCalculation(newCurTotal) {
+    // this.inputThousandSeperator(
+    this.setState({currentTotal: newCurTotal, displayValue: this.inputThousandSeperator(newCurTotal.toString())});
+  }
 
   render() {
     return (
