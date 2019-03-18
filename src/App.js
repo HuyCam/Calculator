@@ -3,6 +3,7 @@ import './App.css';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import Display from './components/display';
 import ButtonContain from './components/button-container';
+import { stringify } from 'querystring';
 
 class App extends Component {
   constructor(props) {
@@ -147,6 +148,7 @@ class App extends Component {
           if (this.state.inputValue ) {
             this.operatorHandling(value, currentInput);
           } else {
+            this.updateMathSequence('', value);
             this.setState({ currentOperator: value})
           }
         break;
@@ -155,6 +157,7 @@ class App extends Component {
         break;
       case 'result':
           // if user hit equal sign, calculate total
+          this.updateMathSequence(this.state.inputValue);
           this.calculateTotal();
           this.setState({
             currentOperator: '',
@@ -185,20 +188,33 @@ class App extends Component {
   inputThousandSeperator(numb) {
     const arrNumb = numb.toString().split('.'); // this is array of string type number
     if (arrNumb.length === 1) {
+      // regualr expression to put thousand serperator
       return numb.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
     } else {
       const integerPart = arrNumb[0].replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
-      const decimalPart = arrNumb[1];
+      const decimalPart =arrNumb[1];
+      if (decimalPart.length > 2) {
+        return parseFloat(integerPart + '.' + decimalPart).toFixed(2).toString().replace(/^(\d+\.\d*?[1-9])0+$/g, '$1');
+      }
       return integerPart + '.' + decimalPart;
     }
     
   }
 
+  updateMathSequence(numb = '', operator = '') {
+    const mathSequence = `${this.state.mathSequence} ${numb} ${operator}`;
+    this.setState({ mathSequence: mathSequence});
+  }
+
   operatorHandling(value, oldInput) {
+      let mathSequence = this.mathSequence;
      // if this is first calculation
      if (!this.state.currentOperator) {
+        // update math sequence
+        this.updateMathSequence(oldInput, value);
         this.setState({inputValue: '0', currentTotal: this.convertNumb(oldInput) , currentOperator: value});
       } else {
+        this.updateMathSequence(oldInput, value);
         this.calculateTotal();
         this.setState({currentOperator: value});
           
@@ -234,8 +250,16 @@ class App extends Component {
         break;
       case '.':
         newInput = input.toString() + '.';
-        console.log('newInput', newInput);
         this.updateInputnDisplay(newInput);
+        break;
+      case 'Del':
+        const inputStr = input.toString();
+        newInput = inputStr.slice(0, inputStr.length - 1);
+        if (newInput.length === 0 ) {
+          this.updateInputnDisplay('0');
+        } else {
+          this.updateInputnDisplay(newInput);
+        }
         break;
     }
   }
@@ -289,7 +313,7 @@ class App extends Component {
     return (
       <div className="App">
         <Display className="Calculator-screen" value={this.state.displayValue}/>
-        <div>math sequence</div>
+        <div>{this.state.mathSequence ? this.state.mathSequence : 'math squence' } </div>
         <div className="input-pad">
             <ButtonContain buttons={this.buttons} clickEvent={this.handleClick}/>
         </div>
