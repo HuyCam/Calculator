@@ -156,13 +156,17 @@ class App extends Component {
         this.modifyValue(value);
         break;
       case 'result':
-          // if user hit equal sign, calculate total
+          // check if user input something after an operator
+          if (this.state.inputValue) {
+            // if user hit equal sign, calculate total
           this.updateMathSequence(this.state.inputValue);
           this.calculateTotal();
           this.setState({
             currentOperator: '',
             inputValue: ''
           });
+          }
+          
           
           break;
       case 'reset':
@@ -310,6 +314,7 @@ class App extends Component {
   }
 
   render() {
+    console.log(this.state);
     return (
       <div className="App">
         <Display className="Calculator-screen" value={this.state.displayValue}/>
