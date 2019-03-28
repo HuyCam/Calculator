@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
-import './App.css';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import Display from './components/display';
 import ButtonContain from './components/button-container';
-import { stringify } from 'querystring';
 
 class App extends Component {
   constructor(props) {
@@ -167,7 +165,6 @@ class App extends Component {
           });
           }
           
-          
           break;
       case 'reset':
           if (value === 'CE') {
@@ -216,19 +213,22 @@ class App extends Component {
      if (!this.state.currentOperator) {
         // update math sequence
         this.updateMathSequence(oldInput, value);
-        this.setState({inputValue: '0', currentTotal: this.convertNumb(oldInput) , currentOperator: value});
+        this.setState({inputValue: '', currentTotal: this.convertNumb(oldInput) , currentOperator: value});
       } else {
         this.updateMathSequence(oldInput, value);
         this.calculateTotal();
         this.setState({currentOperator: value});
           
         // reset input value
-        this.setState({inputValue: '0'});
+        this.setState({inputValue: ''});
       }   
   }
 
   modifyValue(value) {
     const input = this.convertNumb(this.state.inputValue);
+    if (!input) {
+      return;
+    }
     // for the special operator, we change input instantly
     let newInput;
     switch(value) {

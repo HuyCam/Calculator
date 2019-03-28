@@ -4,7 +4,7 @@ class Display extends Component {
 
     render() {
         return (
-            <h1 className={this.props.className}>{this.props.value}</h1>
+            <h1 className={`${this.props.className} display`}>{this.props.value}</h1>
         );
     }
 }

@@ -12,3 +12,45 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+.App {
+  text-align: center;
+}
+
+.Calculator-screen {
+  border: 1px solid black;
+  border-radius: 5px;
+}
+
+.input-pad {
+  width: 60%;
+  margin: 2em auto 0 auto;
+}
+
+.button {
+  border: 1px solid black;
+  border-radius: 5px;
+  padding: 1.5em 2em;
+  width: 25%;
+}
+
+.button:hover {
+  background-color: #9da7b7;
+  cursor: pointer;
+}
+
+.button:active {
+  background-color: #8a92a0;
+}
+
+.modifier, .reset {
+  background-color:  #fcce7e;
+}
+
+.number, .display {
+  background-color: #b1f1ee;
+}
+
+.operator, .result {
+  background-color: #f9a484;
+}
