@@ -54,3 +54,36 @@ code {
 .operator, .result {
   background-color: #f9a484;
 }
+
+@media screen and (max-width: 800px) {
+  /* display screen */
+  .display {
+    padding: 1em 0;
+  }
+
+  /* input pad */
+  .input-pad {
+    width: 100%;
+  }
+
+  .button {
+    padding: 2em 0em;
+    font-size: 24px;
+  }
+}
+
+@media screen and (max-width: 370px) {
+  .display {
+    padding: 1em 0;
+  }
+  
+  .input-pad {
+    width: 100%;
+  }
+
+  .button {
+    box-sizing: border-box;
+    padding: 2em 0em;
+    font-size: 24px;
+  }
+}
