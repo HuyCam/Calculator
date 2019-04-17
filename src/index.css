@@ -34,11 +34,6 @@ code {
   width: 25%;
 }
 
-.button:hover {
-  background-color: #9da7b7;
-  cursor: pointer;
-}
-
 .button:active {
   background-color: #8a92a0;
 }
