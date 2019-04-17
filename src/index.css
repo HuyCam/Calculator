@@ -34,6 +34,10 @@ code {
   width: 25%;
 }
 
+.button:focus {
+  background-color: #8a92a0;
+}
+
 .button:active {
   background-color: #8a92a0;
 }
