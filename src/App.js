@@ -318,7 +318,7 @@ class App extends Component {
     return (
       <div className="App">
         <Display className="Calculator-screen" value={this.state.displayValue}/>
-        <div>{this.state.mathSequence ? this.state.mathSequence : 'math squence' } </div>
+        <div>{this.state.mathSequence ? this.state.mathSequence : 'math sequence' } </div>
         <div className="input-pad">
             <ButtonContain buttons={this.buttons} clickEvent={this.handleClick}/>
         </div>
