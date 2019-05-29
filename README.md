@@ -6,4 +6,4 @@ To run this app:
 2. Open my app folder in command line
 3. Type in: npm install
 4. Type in: npm start.
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+
